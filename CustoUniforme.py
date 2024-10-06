@@ -4,65 +4,94 @@ from queue import PriorityQueue
 def custo_uniforme(m, start, goal):
     open_list = PriorityQueue()
     open_list.put((0, start))
-    a_path = {}
-    g_score = {cell: float('inf') for cell in m.grid}
-    g_score[start] = 0
+    g_score = {start: 0}
+    ucs_path = {}
 
     while not open_list.empty():
-        curr_cost, currCell = open_list.get()
+        currCell = open_list.get()[1]
 
         if currCell == goal:
             break
 
         for d in 'ESNW':
-            if m.maze_map[currCell][d]:  # Verifica se há caminho
+            if m.maze_map[currCell][d]:
                 if d == 'E':
-                    childCell = (currCell[0], currCell[1] + 1)  # Leste
+                    childCell = (currCell[0], currCell[1] + 1)
                 elif d == 'W':
-                    childCell = (currCell[0], currCell[1] - 1)  # Oeste
+                    childCell = (currCell[0], currCell[1] - 1)
                 elif d == 'N':
-                    childCell = (currCell[0] - 1, currCell[1])  # Norte
+                    childCell = (currCell[0] - 1, currCell[1])
                 elif d == 'S':
-                    childCell = (currCell[0] + 1, currCell[1])  # Sul
+                    childCell = (currCell[0] + 1, currCell[1])
 
                 temp_g_score = g_score[currCell] + 1
 
-                if temp_g_score < g_score[childCell]:
+                if childCell not in g_score or temp_g_score < g_score[childCell]:
                     g_score[childCell] = temp_g_score
-                    open_list.put((temp_g_score, childCell))
-                    a_path[childCell] = currCell
+                    open_list.put((g_score[childCell], childCell))
+                    ucs_path[childCell] = currCell
 
     fwd_path = {}
-    if goal in a_path:
-        cell = goal
-        while cell != start:
-            fwd_path[a_path[cell]] = cell
-            cell = a_path[cell]
+    cell = goal
+    if cell not in ucs_path:
+        print("Caminho não encontrado!")
+        return None, 0
 
-    return fwd_path
+    total_cost = 0
+    while cell != start:
+        fwd_path[ucs_path[cell]] = cell
+        cell = ucs_path[cell]
+        total_cost += 1
 
-if __name__ == '__main__':
-    try:
-        start = tuple(map(int, input('Digite a linha e coluna do ponto inicial (separado por espaço): ').split()))
-        goal = tuple(map(int, input('Digite a linha e coluna do ponto final (separado por espaço): ').split()))
+    return fwd_path, total_cost
+
+
+def jogar_fases(labirintos):
+    """Função para rodar múltiplas fases (labirintos) sequencialmente e calcular o custo total"""
+    fase_atual = 1
+    custo_total = 0 
+
+    start = tuple(map(int, input('Digite a linha e coluna do ponto inicial (separado por espaço): ').split()))
+    goal = tuple(map(int, input('Digite a linha e coluna do ponto final (separado por espaço): ').split()))
+
+    for labirinto in labirintos:
+        print(f"\nFase {fase_atual}: {labirinto}")
+
+        if fase_atual > 1:
+            start = prev_goal
+            goal = tuple(map(int, input(f'Digite a linha e coluna do ponto final para a fase {fase_atual} (separado por espaço): ').split()))
 
         m = maze()
-        m.CreateMaze(goal[0], goal[1], loadMaze="labirinto - Página1.csv")  # Cria o labirinto
+        m.CreateMaze(goal[0], goal[1], loadMaze=labirinto, theme=COLOR.black)
 
-        start = (start[0], start[1])
-        goal = (goal[0], goal[1])
+        path, custo_fase = custo_uniforme(m, start, goal)
 
-        if start not in m.grid or goal not in m.grid:
-            print("Células de início ou chegada inválidas. Tente novamente.")
-        else:
-            path = custo_uniforme(m, start, goal)
+        if path is None:
+            print(f"Você falhou na fase {fase_atual}! Tente novamente.")
+            break
 
-            if path:
-                a = agent(m, start[0], start[1], footprints=True)
-                m.tracePath({a: path})
-                l = textLabel(m, 'Custo da Solução', len(path) + 1)
-                m.run()
-            else:
-                print("Não foi possível encontrar um caminho do ponto inicial ao ponto final.")
-    except ValueError:
-        print("Entrada inválida. Por favor, insira números inteiros.")
+        a = agent(m, start[0], start[1], footprints=True, shape='square', filled=True)
+        m.tracePath({a: path})
+
+        l = textLabel(m, f'Custo da Solução - Fase {fase_atual}', custo_fase)
+        m.run()
+
+        custo_total += custo_fase
+        print(f"Parabéns! Você completou a fase {fase_atual}. Custo dessa fase: {custo_fase}")
+
+        prev_goal = goal
+
+        fase_atual += 1
+
+    if fase_atual > len(labirintos):
+        print(f"Você completou todas as fases! Custo total: {custo_total}")
+
+
+if __name__ == '__main__':
+    labirintos = [
+        "labirinto - Página1.csv",
+        "labirinto - Página2.csv",
+        "labirinto - Página3.csv"
+    ]
+
+    jogar_fases(labirintos)
