@@ -2,48 +2,48 @@ from pyamaze import maze, agent, textLabel, COLOR
 from queue import PriorityQueue
 
 def custo_uniforme(m, start, goal):
-    open_list = PriorityQueue()
-    open_list.put((0, start))
-    g_score = {start: 0}
-    ucs_path = {}
+    open_list = PriorityQueue()  # O(1): criação da lista de prioridades
+    open_list.put((0, start))  # O(log n): inserção do ponto inicial na fila
+    g_score = {start: 0}  # O(1): inicialização do dicionário g_score
+    ucs_path = {}  # O(1): inicialização do dicionário ucs_path
 
-    while not open_list.empty():
-        currCell = open_list.get()[1]
+    while not open_list.empty():  # O(n): laço que itera até que a fila esteja vazia
+        currCell = open_list.get()[1]  # O(log n): remoção da célula com menor custo
 
-        if currCell == goal:
+        if currCell == goal:  # O(1): verificação se a célula atual é o objetivo
             break
 
-        for d in 'ESNW':
-            if m.maze_map[currCell][d]:
+        for d in 'ESNW':  # O(1): iterando sobre as direções (norte, sul, leste, oeste)
+            if m.maze_map[currCell][d]:  # O(1): verificação se o movimento na direção d é válido
                 if d == 'E':
-                    childCell = (currCell[0], currCell[1] + 1)
+                    childCell = (currCell[0], currCell[1] + 1)  # O(1): criação da célula do filho
                 elif d == 'W':
-                    childCell = (currCell[0], currCell[1] - 1)
+                    childCell = (currCell[0], currCell[1] - 1)  # O(1): criação da célula do filho
                 elif d == 'N':
-                    childCell = (currCell[0] - 1, currCell[1])
+                    childCell = (currCell[0] - 1, currCell[1])  # O(1): criação da célula do filho
                 elif d == 'S':
-                    childCell = (currCell[0] + 1, currCell[1])
+                    childCell = (currCell[0] + 1, currCell[1])  # O(1): criação da célula do filho
 
-                temp_g_score = g_score[currCell] + 1
+                temp_g_score = g_score[currCell] + 1  # O(1): cálculo do novo custo g
 
-                if childCell not in g_score or temp_g_score < g_score[childCell]:
-                    g_score[childCell] = temp_g_score
-                    open_list.put((g_score[childCell], childCell))
-                    ucs_path[childCell] = currCell
+                if childCell not in g_score or temp_g_score < g_score[childCell]:  # O(1): verificação de custo
+                    g_score[childCell] = temp_g_score  # O(1): atualização do custo g para a célula filha
+                    open_list.put((g_score[childCell], childCell))  # O(log n): inserção na fila de prioridade
+                    ucs_path[childCell] = currCell  # O(1): armazenar a célula atual como pai da célula filha
 
-    fwd_path = {}
-    cell = goal
-    if cell not in ucs_path:
-        print("Caminho não encontrado!")
-        return None, 0
+    fwd_path = {}  # O(1): inicialização do dicionário fwd_path
+    cell = goal  # O(1): inicialização da célula com o objetivo
+    if cell not in ucs_path:  # O(1): verificação se o caminho foi encontrado
+        print("Caminho não encontrado!")  # O(1): mensagem de erro
+        return None, 0  # O(1): retorno se o caminho não foi encontrado
 
-    total_cost = 0
-    while cell != start:
-        fwd_path[ucs_path[cell]] = cell
-        cell = ucs_path[cell]
-        total_cost += 1
+    total_cost = 0  # O(1): inicialização do custo total
+    while cell != start:  # O(n): itera até que a célula seja a inicial
+        fwd_path[ucs_path[cell]] = cell  # O(1): armazenar o caminho
+        cell = ucs_path[cell]  # O(1): atualizar a célula para o pai
+        total_cost += 1  # O(1): incrementar o custo total
 
-    return fwd_path, total_cost
+    return fwd_path, total_cost  # O(1): retorno do caminho e custo total
 
 
 def jogar_fases(labirintos):
