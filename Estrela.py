@@ -7,61 +7,59 @@ def h(cell1, cell2):
     x2, y2 = cell2
     return abs(x1 - x2) + abs(y1 - y2)
 
-
+# 35 + 2log N + N log N + 2n
 def a_star(m, start, goal):
-    open_list = PriorityQueue()  # O(1) - Inicialização da lista de prioridade
-    open_list.put((0, h(start, goal), start))  # O(log n) - Inserção na lista de prioridade
-    g_score = {start: 0}  # O(1) - Inicialização da pontuação g
-    f_score = {start: h(start, goal)}  # O(1) - Inicialização da pontuação f
-    a_path = {}  # O(1) - Inicialização do caminho
+    open_list = PriorityQueue()  # 1
+    open_list.put((0, h(start, goal), start))  # 1
+    g_score = {start: 0}  # 1
+    f_score = {start: h(start, goal)}  # 2
+    a_path = {}  # 1
 
-    while not open_list.empty():  # O(n log n) - Loop até que a lista esteja vazia, onde n é o número de células
-        currCell = open_list.get()[2]  # O(log n) - Remoção do menor elemento da lista de prioridade
+    while not open_list.empty():  # n log n
+        currCell = open_list.get()[2]  # 1
 
-        if currCell == goal:  # O(1) - Verificação se o objetivo foi alcançado
-            break  # O(1)
+        if currCell == goal:  # 1
+            break  # 1
 
-        for d in 'ESNW':  # O(4) - Iteração sobre as 4 direções possíveis
-            if m.maze_map[currCell][d]:  # O(1) - Verificação se a direção está aberta
+        for d in 'ESNW':  # n
+            if m.maze_map[currCell][d]:  # 1
                 if d == 'E':
-                    childCell = (currCell[0], currCell[1] + 1)  # O(1) - Cálculo da célula adjacente
+                    childCell = (currCell[0], currCell[1] + 1)  # 2
                 elif d == 'W':
-                    childCell = (currCell[0], currCell[1] - 1)  # O(1)
+                    childCell = (currCell[0], currCell[1] - 1)  # 2
                 elif d == 'N':
-                    childCell = (currCell[0] - 1, currCell[1])  # O(1)
+                    childCell = (currCell[0] - 1, currCell[1])  # 2
                 elif d == 'S':
-                    childCell = (currCell[0] + 1, currCell[1])  # O(1)
+                    childCell = (currCell[0] + 1, currCell[1])  # 2
 
-                temp_g_score = g_score[currCell] + 1  # O(1) - Cálculo do g_score temporário
-                temp_f_score = temp_g_score + h(childCell, goal)  # O(1) - Cálculo do f_score temporário
+                temp_g_score = g_score[currCell] + 1  # 1
+                temp_f_score = temp_g_score + h(childCell, goal)  # 1
 
-                if childCell not in f_score or temp_f_score < f_score[childCell]:  # O(1) - Verificação da pontuação f
-                    g_score[childCell] = temp_g_score  # O(1) - Atualização do g_score
-                    f_score[childCell] = temp_f_score  # O(1) - Atualização do f_score
-                    open_list.put((f_score[childCell], h(childCell, goal), childCell))  # O(log n) - Inserção na lista de prioridade
-                    a_path[childCell] = currCell  # O(1) - Registro do caminho
+                if childCell not in f_score or temp_f_score < f_score[childCell]:  # 2
+                    g_score[childCell] = temp_g_score  # 1
+                    f_score[childCell] = temp_f_score  # 1
+                    open_list.put((f_score[childCell], h(childCell, goal), childCell))  # log n
+                    a_path[childCell] = currCell  # 1
 
-    fwd_path = {}  # O(1) - Inicialização do caminho final
-    cell = goal  # O(1)
+    fwd_path = {}  # 1
+    cell = goal  # 1
 
-    if cell not in a_path:  # O(1) - Verificação se o caminho foi encontrado
-        print("Caminho não encontrado!")  # O(1)
-        return None, 0  # O(1)
+    if cell not in a_path:  # 1
+        print("Caminho não encontrado!")  # 1
+        return None, 0  # 1
 
-    total_cost = 0  # O(1) - Inicialização do custo total
-    while cell != start:  # O(n) - Loop para reconstruir o caminho, onde n é o número de células no caminho
-        fwd_path[a_path[cell]] = cell  # O(1) - Registro do caminho
-        cell = a_path[cell]  # O(1) - Atualização da célula
-        total_cost += 1  # O(1) - Incremento do custo
+    total_cost = 0  # 1
+    while cell != start:  # n
+        fwd_path[a_path[cell]] = cell  # 1
+        cell = a_path[cell]  # 1
+        total_cost += 1  # 1
 
-    return fwd_path, total_cost  # O(1) - Retorno do caminho e do custo total
-
-
+    return fwd_path, total_cost  # 1
 
 def jogar_fases(labirintos):
     """Função para rodar múltiplas fases (labirintos) sequencialmente e calcular o custo total"""
     fase_atual = 1
-    custo_total = 0  # Variável para armazenar o custo acumulado
+    custo_total = 0
 
     start = tuple(map(int, input('Digite a linha e coluna do ponto inicial (separado por espaço): ').split()))
 
