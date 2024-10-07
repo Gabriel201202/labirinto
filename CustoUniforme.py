@@ -88,9 +88,9 @@ def jogar_fases(labirintos):
 
 if __name__ == '__main__':
     labirintos = [
-        "labirinto - Página1.csv",
-        "labirinto - Página2.csv",
-        "labirinto - Página3.csv"
+        "labirinto - Página1 2d.csv",
+        "labirinto - Página2 2d.csv",
+        "labirinto - Página3 2d.csv"
     ]
 
     jogar_fases(labirintos)
