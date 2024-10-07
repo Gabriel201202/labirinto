@@ -1,0 +1,3 @@
+Bibliotecas utilizadas:
+Pyamaze
+matplotlib
